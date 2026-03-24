@@ -386,11 +386,17 @@ let shakeDuration = 0;
 let roadOffset = 0;
 
 // Player
+const PLAYER_Y_DEFAULT = H - 140;
+const PLAYER_Y_MIN = H * 0.3;   // can't go above 30% of screen
+const PLAYER_Y_MAX = H - 60;    // can't go below bottom edge
+const PLAYER_VERT_SPEED = 5;    // vertical movement speed per frame-unit
+
 const player = {
   lane: 2,
   x: 0,
   targetX: 0,
-  y: H - 140,
+  y: PLAYER_Y_DEFAULT,
+  targetY: PLAYER_Y_DEFAULT,
   trail: []
 };
 
@@ -424,6 +430,8 @@ function resetPlayer() {
   player.lane = 2;
   player.x = laneX(2);
   player.targetX = player.x;
+  player.y = PLAYER_Y_DEFAULT;
+  player.targetY = PLAYER_Y_DEFAULT;
   player.trail = [];
 }
 
@@ -915,6 +923,15 @@ function gameLoop(timestamp) {
   // Player movement (smooth)
   const moveSpeed = 12;
   player.x += (player.targetX - player.x) * 0.2 * dt;
+
+  // Vertical movement (continuous while held)
+  if (keys['ArrowUp'] || keys['KeyW']) {
+    player.targetY = Math.max(PLAYER_Y_MIN, player.targetY - PLAYER_VERT_SPEED * dt);
+  }
+  if (keys['ArrowDown'] || keys['KeyS']) {
+    player.targetY = Math.min(PLAYER_Y_MAX, player.targetY + PLAYER_VERT_SPEED * dt);
+  }
+  player.y += (player.targetY - player.y) * 0.2 * dt;
 
   // Player trail
   if (frameCount % 2 === 0) {
