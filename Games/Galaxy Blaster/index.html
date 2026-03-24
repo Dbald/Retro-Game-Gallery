@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxy Blaster</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+        }
+        #game-container {
+            position: relative;
+            width: 640px;
+            height: 480px;
+        }
+        canvas {
+            display: block;
+            background: #000;
+            image-rendering: pixelated;
+        }
+        .screen {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        .hidden { display: none !important; }
+        .game-title {
+            font-size: 48px;
+            color: #0ff;
+            text-shadow: 0 0 20px #0ff, 0 0 40px #08f;
+            letter-spacing: 6px;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            font-size: 14px;
+            color: #88f;
+            letter-spacing: 4px;
+            margin-bottom: 40px;
+        }
+        .menu-btn {
+            display: block;
+            background: transparent;
+            border: 2px solid #0ff;
+            color: #0ff;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            padding: 10px 36px;
+            margin: 8px;
+            cursor: pointer;
+            letter-spacing: 2px;
+            transition: all 0.15s;
+        }
+        .menu-btn:hover {
+            background: #0ff;
+            color: #000;
+            box-shadow: 0 0 15px #0ff;
+        }
+        .footer-text {
+            position: absolute;
+            bottom: 20px;
+            color: #446;
+            font-size: 11px;
+            letter-spacing: 3px;
+        }
+        .screen-title {
+            font-size: 36px;
+            color: #0ff;
+            text-shadow: 0 0 15px #0ff;
+            margin-bottom: 20px;
+            letter-spacing: 4px;
+        }
+        .gameover-title { color: #f44; text-shadow: 0 0 20px #f44; }
+        .gameover-stats { color: #aaf; font-size: 16px; margin-bottom: 24px; line-height: 2; }
+        .gameover-stats span { color: #0ff; }
+        .howto-content { color: #99b; font-size: 14px; line-height: 2.2; margin-bottom: 24px; text-align: center; }
+        .howto-content .key {
+            background: #223;
+            border: 1px solid #558;
+            padding: 2px 8px;
+            color: #0ff;
+            border-radius: 3px;
+        }
+        .score-big { font-size: 48px; color: #0ff; text-shadow: 0 0 20px #0ff; margin-bottom: 24px; }
+        #hud {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 12px;
+            z-index: 5;
+            pointer-events: none;
+        }
+        #hud div {
+            color: #0ff;
+            font-size: 13px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 6px #08f;
+        }
+        #hud-lives { color: #f88; }
+        #hud-powerup {
+            color: #ff0;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas" width="640" height="480"></canvas>
+
+        <!-- Main Menu -->
+        <div id="menu-screen" class="screen">
+            <h1 class="game-title">GALAXY BLASTER</h1>
+            <div class="subtitle">Protect the Stars</div>
+            <div>
+                <button id="btn-start" class="menu-btn">START GAME</button>
+                <button id="btn-howto" class="menu-btn">HOW TO PLAY</button>
+                <button id="btn-scores" class="menu-btn">HIGH SCORE</button>
+            </div>
+            <div class="footer-text">ARROWS / A-D TO MOVE &middot; SPACE TO FIRE</div>
+        </div>
+
+        <!-- How To Play -->
+        <div id="howto-screen" class="screen hidden">
+            <h2 class="screen-title">HOW TO PLAY</h2>
+            <div class="howto-content">
+                <p><span class="key">A/D</span> or <span class="key">LEFT/RIGHT</span> &mdash; Move ship</p>
+                <p><span class="key">SPACE</span> &mdash; Fire</p>
+                <p><span class="key">ESC</span> or <span class="key">P</span> &mdash; Pause</p>
+                <br>
+                <p>Destroy enemy waves to earn points.</p>
+                <p>Collect power-ups dropped by enemies.</p>
+                <p>Survive as long as you can!</p>
+            </div>
+            <button id="btn-howto-back" class="menu-btn">BACK</button>
+        </div>
+
+        <!-- High Score -->
+        <div id="scores-screen" class="screen hidden">
+            <h2 class="screen-title">HIGH SCORE</h2>
+            <div id="high-score-display" class="score-big">0</div>
+            <button id="btn-scores-back" class="menu-btn">BACK</button>
+        </div>
+
+        <!-- HUD -->
+        <div id="hud" class="hidden">
+            <div id="hud-score">SCORE: 0</div>
+            <div id="hud-wave">WAVE 1</div>
+            <div id="hud-powerup"></div>
+            <div id="hud-lives">LIVES: 3</div>
+        </div>
+
+        <!-- Pause -->
+        <div id="pause-screen" class="screen hidden">
+            <h2 class="screen-title">PAUSED</h2>
+            <button id="btn-resume" class="menu-btn">RESUME</button>
+            <button id="btn-quit" class="menu-btn">QUIT</button>
+        </div>
+
+        <!-- Game Over -->
+        <div id="gameover-screen" class="screen hidden">
+            <h2 class="screen-title gameover-title">GAME OVER</h2>
+            <div class="gameover-stats">
+                <p>SCORE: <span id="go-score">0</span></p>
+                <p>WAVE: <span id="go-wave">0</span></p>
+                <p>BEST: <span id="go-best">0</span></p>
+            </div>
+            <button id="btn-restart" class="menu-btn">PLAY AGAIN</button>
+            <button id="btn-menu" class="menu-btn">MAIN MENU</button>
+        </div>
+    </div>
+
+    <script src="audio.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>

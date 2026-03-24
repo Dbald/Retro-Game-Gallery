@@ -6,7 +6,7 @@ const games = [
     thumbLabel: "NEON RACER",
     thumbImage: "./img/neonracer/neonracer.png",
     thumbStyle: "linear-gradient(135deg, #ff4fd8, #7a5cff)",
-    link: "/neonracer.html"
+    link: "./Games/Neon Racer/neonracer.html"
   },
   {
     title: "Galaxy Blaster",
@@ -14,7 +14,7 @@ const games = [
     tag: "Shooter",
     thumbLabel: "GALAXY BLASTER",
     thumbStyle: "linear-gradient(135deg, #3cf2ff, #1a7cff)",
-    link: "#"
+    link: "./Games/Galaxy Blaster/index.html"
   },
   {
     title: "Dungeon Pixel",
