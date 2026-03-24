@@ -13,6 +13,7 @@ const games = [
     description: "Protect the stars and blast enemy waves in a classic space shooter experience.",
     tag: "Shooter",
     thumbLabel: "GALAXY BLASTER",
+    thumbImage: "./img/galaxyblaster.png",
     thumbStyle: "linear-gradient(135deg, #3cf2ff, #1a7cff)",
     link: "./Games/Galaxy Blaster/index.html"
   },
